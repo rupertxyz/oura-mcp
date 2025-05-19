@@ -1,4 +1,5 @@
 import { OuraAuth } from '../oura_connection.js';
+import fetch from 'node-fetch';
 
 interface PersonalInfo {
   age: number;
@@ -10,13 +11,16 @@ interface PersonalInfo {
 
 export async function fetchPersonalInfo(auth: OuraAuth): Promise<PersonalInfo> {
   const headers = await auth.getHeaders();
-  const response = await fetch(`${auth.getBaseUrl()}/usercollection/personal_info`, {
-    headers,
-  });
+  const response = await fetch(
+    `${auth.getBaseUrl()}/usercollection/personal_info`,
+    {
+      headers,
+    }
+  );
 
   if (!response.ok) {
     throw new Error(`Failed to fetch personal info: ${response.statusText}`);
   }
 
-  return response.json();
-} 
+  return response.json() as Promise<PersonalInfo>;
+}

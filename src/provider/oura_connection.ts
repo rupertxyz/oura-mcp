@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import fetch from 'node-fetch';
 
 export interface OuraTokens {
   accessToken: string;
@@ -10,20 +11,27 @@ export class OuraAuth {
   private baseUrl = 'https://api.ouraring.com/v2';
   private tokens: OuraTokens;
 
-  constructor(personalAccessToken?: string, clientId?: string, clientSecret?: string, redirectUri?: string) {
+  constructor(
+    personalAccessToken?: string,
+    clientId?: string,
+    clientSecret?: string,
+    redirectUri?: string
+  ) {
     if (personalAccessToken) {
       this.tokens = {
-        accessToken: personalAccessToken
+        accessToken: personalAccessToken,
       };
     } else if (clientId && clientSecret) {
       // Store OAuth credentials for later use
       this.tokens = {
         accessToken: '',
         refreshToken: '',
-        expiresAt: 0
+        expiresAt: 0,
       };
     } else {
-      throw new Error('Either personal access token or OAuth credentials must be provided');
+      throw new Error(
+        'Either personal access token or OAuth credentials must be provided'
+      );
     }
   }
 
@@ -38,7 +46,7 @@ export class OuraAuth {
     }
 
     return {
-      'Authorization': `Bearer ${this.tokens.accessToken}`,
+      Authorization: `Bearer ${this.tokens.accessToken}`,
       'Content-Type': 'application/json',
     };
   }
@@ -63,7 +71,7 @@ export class OuraAuth {
       throw new Error(`Failed to refresh token: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     this.tokens = {
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
@@ -74,4 +82,4 @@ export class OuraAuth {
   getBaseUrl(): string {
     return this.baseUrl;
   }
-} 
+}
